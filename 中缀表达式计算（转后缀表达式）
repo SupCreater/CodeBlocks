@@ -1,0 +1,128 @@
+
+#include<stdio.h>
+#include<stdlib.h>
+#define max 20
+int compare(char a, char b)//对各运算符赋予运算优先级
+{
+	switch (a)
+	{
+	case ')':a = 4; break;
+	case '*':
+	case '/':a = 3; break;
+	case '+':
+	case '-':a = 2; break;
+	case '(':a = 1; break;
+	case '#':a = 0; break;
+	default:break;
+	}
+	switch (b)
+	{
+	case ')':b = 1; break;
+	case '*':
+	case '/':b = 3; break;
+	case '+':
+	case '-':b = 2; break;
+	case '(':b = 4; break;
+	case '#':b = 0; break;
+	default:break;
+	}
+	if (a >= b) return 1;
+	else return 0;
+}
+
+void fun(char *s,char *t)//中缀表达式转换为后缀表达式并存入t，调用compute函数
+{
+	int i = 0, k = 0, c;
+	int z=0;
+	char e, b[max];
+	e = s[i++];
+	b[k] = '#';
+	while (1)//#是结束符
+	{
+		if (e != ')'&&e != '*'&&e != '/'&&e != '+'&&e != '-'&&e != '('&&e!='#')//输出纯数字
+			{
+			    printf("%c", e);
+			    t[z++]=e;
+			}
+		else
+		{
+			if (compare(b[k], e))//运算符比较
+			{
+				if (e != '（'&&e!='#'){printf("%c", b[k]);t[z++]=b[k];}
+				if(e!='#')	b[k] = e;
+			}
+			else
+			{
+			    b[++k] = e;
+            }
+			if (e == '#')
+            {
+				while (k> 0)
+					if(b[k]!='#'&&b[k]!='(')	{t[z++]=b[k];printf("%c", b[k--]);}
+					else k--;
+				printf("\n"); break;
+			}
+
+			if (b[k] == ')') {
+				while (1)
+				{
+					if (b[k] != ')'&&b[k] != '('){t[z++]=b[k]; printf("%c", b[k--]);}
+					else k--;
+					if (b[k]== '(') { k--; break; }
+				}
+			}
+        }
+		e=s[i++];
+	}
+	t[z]='\0';
+	compute(t);
+}
+void compute(char *t)//建立栈s，用于存放t中数值
+{
+    int s[max];
+    int i,j;
+    i=0;
+    j=0;
+    while(t[j]!='\0')
+    {
+        if(t[j]<='9'&&t[j]>='0')
+        {
+            s[i++]=(t[j++]-48);
+        }
+        else
+        {
+            i=i-2;
+            if(t[j]=='+')
+            {
+                s[i]+=s[i+1];
+            }
+            else if(t[j]=='-')
+            {
+                s[i]-=s[i+1];
+            }
+            else if(t[j]=='*')
+            {
+                s[i]*=s[i+1];
+            }
+            else if(t[j]=='/')
+            {
+                s[i]/=s[i+1];
+            }
+            i++;
+            j++;
+        }
+    }
+
+    printf("结果是：%d\n",s[0]);
+}
+int main()
+{
+	char s[max];
+	char t[max];
+	printf("请输出: ");
+	gets(s);
+	printf("后缀式输出: ");
+	fun(s,t);
+
+	return 0;
+}
